@@ -48,18 +48,18 @@ RUN pip install ubi_reader
 # NOTE: *** It will take a very long time to build ***
 #       *** but it works ***
 #
-#RUN pip install pwntools
+RUN pip install pwntools
 
 # Install packages/repos from Github
 WORKDIR /tmp
-#RUN git clone --depth 1 https://github.com/sviehb/jefferson.git
-RUN git clone --depth 1 https://github.com/ReFirmLabs/binwalk.git
+RUN git clone --depth 1 https://github.com/sviehb/jefferson.git
+#RUN git clone --depth 1 https://github.com/ReFirmLabs/binwalk.git
 
-#WORKDIR /tmp/jefferson
-#RUN python3 setup.py install
-
-WORKDIR /tmp/binwalk
+WORKDIR /tmp/jefferson
 RUN python3 setup.py install
+
+#WORKDIR /tmp/binwalk
+#RUN python3 setup.py install
 
 # Copy network tunnel startup script, NFS exports, tinyproxy config and tinyproxy startup script
 COPY files/etc/local.d/* /etc/local.d/
@@ -101,8 +101,11 @@ COPY --chown=root files/home/r0/dircolors /root/.dircolors
 RUN chmod 600 /home/r0/.ssh/id_rsa /home/r0/.ssh/config
 RUN chmod 600 /root/.ssh/id_rsa
 
+RUN mkdir -p /dev/net && mknod /dev/net/tun c 10 200 && chmod 600 /dev/net/tun
+
 # Set up the docker entrypoint script
 COPY ./docker-entrypoint.sh /usr/local/bin
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
 
 USER r0
 
@@ -111,5 +114,5 @@ ENV LANG C.UTF-8
 ENV CHARSET UTF-8
 ENV LC_COLLATE C
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+#ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["/bin/bash"]
